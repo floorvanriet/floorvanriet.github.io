@@ -43,7 +43,7 @@ public protocol SettingsStore: AnyObject {
 }
 
 public final class UserDefaultsSettingsStore: SettingsStore, @unchecked Sendable {
-    public static let appGroupSuite = "group.com.floorvanriet.PaywallReader"
+    public static let appGroupSuite = "group.com.floorvanriet.SuperReader"
 
     private let defaults: UserDefaults
     private let key = "unlock.settings.v1"

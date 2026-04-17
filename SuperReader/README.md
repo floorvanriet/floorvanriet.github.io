@@ -1,4 +1,4 @@
-# PaywallReader (iOS)
+# SuperReader (iOS)
 
 Native iOS app + Share Extension die via een keten van archief-diensten probeert
 paywalls te omzeilen en het artikel in reader-weergave aanbiedt.
@@ -25,32 +25,32 @@ Het `.xcodeproj` wordt niet ingecheckt — regenereer lokaal met XcodeGen.
 ## Project openen
 
 ```sh
-cd PaywallReader
+cd SuperReader
 xcodegen generate
-open PaywallReader.xcodeproj
+open SuperReader.xcodeproj
 ```
 
 ## Builds vanaf command line
 
 ```sh
-cd PaywallReader
+cd SuperReader
 xcodegen generate
-xcodebuild -scheme PaywallReader -destination 'generic/platform=iOS Simulator' build
+xcodebuild -scheme SuperReader -destination 'generic/platform=iOS Simulator' build
 ```
 
 Tests (runt de SwiftPM tests van `UnlockKit`):
 
 ```sh
-cd PaywallReader/Packages/UnlockKit
+cd SuperReader/Packages/UnlockKit
 swift test
 ```
 
 ## Structuur
 
 ```
-PaywallReader/
+SuperReader/
   project.yml                     # XcodeGen project-spec
-  PaywallReader/                  # Main app target (SwiftUI)
+  SuperReader/                    # Main app target (SwiftUI)
   ShareExtension/                 # Share Extension target (SwiftUI + UIKit host)
   Packages/UnlockKit/             # Lokale SPM package met unlock-logica
 ```
@@ -59,5 +59,5 @@ PaywallReader/
 
 Voor het draaien op een fysiek apparaat of distributie moet `DEVELOPMENT_TEAM`
 in `project.yml` worden ingevuld en moet de App Group
-`group.com.floorvanriet.PaywallReader` in het Apple Developer portal staan.
+`group.com.floorvanriet.SuperReader` in het Apple Developer portal staan.
 Voor simulator-builds kan dit leeg blijven.

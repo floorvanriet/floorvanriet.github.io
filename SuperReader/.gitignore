@@ -20,4 +20,4 @@ Packages/*/.swiftpm/
 Package.resolved
 
 # XcodeGen-generated project — regenerate locally with `xcodegen generate`.
-PaywallReader.xcodeproj/
+SuperReader.xcodeproj/

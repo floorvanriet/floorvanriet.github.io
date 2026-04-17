@@ -6,14 +6,14 @@ struct ContentView: View {
             List {
                 Section {
                     Label {
-                        Text("Deel een artikel-URL vanuit Safari of een andere app naar **PaywallReader** om de paywall te proberen te omzeilen.")
+                        Text("Deel een artikel-URL vanuit Safari of een andere app naar **SuperReader** om de paywall te proberen te omzeilen.")
                     } icon: {
                         Image(systemName: "square.and.arrow.up")
                     }
                 } header: {
                     Text("Hoe gebruik je de extension")
                 } footer: {
-                    Text("Activeer de extension eenmalig via het deelmenu → \"Bewerken\" → PaywallReader.")
+                    Text("Activeer de extension eenmalig via het deelmenu → \"Bewerken\" → SuperReader.")
                 }
 
                 Section {
@@ -24,7 +24,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("PaywallReader")
+            .navigationTitle("SuperReader")
         }
     }
 }

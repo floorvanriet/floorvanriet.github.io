@@ -1,4 +1,4 @@
-name: PaywallReader
+name: SuperReader
 options:
   bundleIdPrefix: com.floorvanriet
   deploymentTarget:
@@ -24,20 +24,20 @@ packages:
     path: Packages/UnlockKit
 
 targets:
-  PaywallReader:
+  SuperReader:
     type: application
     platform: iOS
     sources:
-      - path: PaywallReader
+      - path: SuperReader
         excludes:
           - Info.plist
-          - PaywallReader.entitlements
+          - SuperReader.entitlements
     resources:
-      - path: PaywallReader/Assets.xcassets
+      - path: SuperReader/Assets.xcassets
     info:
-      path: PaywallReader/Info.plist
+      path: SuperReader/Info.plist
       properties:
-        CFBundleDisplayName: PaywallReader
+        CFBundleDisplayName: SuperReader
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
@@ -50,13 +50,13 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
     entitlements:
-      path: PaywallReader/PaywallReader.entitlements
+      path: SuperReader/SuperReader.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.floorvanriet.PaywallReader
+          - group.com.floorvanriet.SuperReader
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.floorvanriet.PaywallReader
+        PRODUCT_BUNDLE_IDENTIFIER: com.floorvanriet.SuperReader
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: "YES"
         INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -80,7 +80,7 @@ targets:
     info:
       path: ShareExtension/Info.plist
       properties:
-        CFBundleDisplayName: PaywallReader
+        CFBundleDisplayName: SuperReader
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
@@ -93,20 +93,20 @@ targets:
       path: ShareExtension/ShareExtension.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.floorvanriet.PaywallReader
+          - group.com.floorvanriet.SuperReader
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.floorvanriet.PaywallReader.ShareExtension
+        PRODUCT_BUNDLE_IDENTIFIER: com.floorvanriet.SuperReader.ShareExtension
         SKIP_INSTALL: "YES"
         GENERATE_INFOPLIST_FILE: "NO"
     dependencies:
       - package: UnlockKit
 
 schemes:
-  PaywallReader:
+  SuperReader:
     build:
       targets:
-        PaywallReader: all
+        SuperReader: all
         ShareExtension: all
     run:
       config: Debug

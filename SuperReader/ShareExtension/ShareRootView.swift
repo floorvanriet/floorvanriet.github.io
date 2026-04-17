@@ -19,7 +19,7 @@ struct ShareRootView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("PaywallReader")
+                .navigationTitle("SuperReader")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

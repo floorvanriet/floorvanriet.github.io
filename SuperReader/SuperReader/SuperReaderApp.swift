@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PaywallReaderApp: App {
+struct SuperReaderApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
