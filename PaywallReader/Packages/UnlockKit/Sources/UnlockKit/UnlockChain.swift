@@ -7,9 +7,10 @@ public struct UnlockChain: Sendable {
         self.strategies = strategies
     }
 
-    /// Default MVP chain: archive.is → Wayback → direct (SFSafariViewController reader).
+    /// Default MVP chain: already-archived short-circuit → archive.is → Wayback → direct.
     public static func mvp(client: HTTPClient = URLSessionHTTPClient()) -> UnlockChain {
         UnlockChain(strategies: [
+            AlreadyArchivedStrategy(),
             ArchiveIsStrategy(client: client),
             WaybackStrategy(client: client),
             DirectStrategy()
