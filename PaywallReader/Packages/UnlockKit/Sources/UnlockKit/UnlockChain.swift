@@ -9,12 +9,26 @@ public struct UnlockChain: Sendable {
 
     /// Default MVP chain: already-archived short-circuit → archive.is → Wayback → direct.
     public static func mvp(client: HTTPClient = URLSessionHTTPClient()) -> UnlockChain {
-        UnlockChain(strategies: [
-            AlreadyArchivedStrategy(),
-            ArchiveIsStrategy(client: client),
-            WaybackStrategy(client: client),
-            DirectStrategy()
-        ])
+        from(settings: .default, client: client)
+    }
+
+    /// Builds a chain from persisted settings. `DirectStrategy` is always
+    /// appended as the guaranteed last-resort fallback.
+    public static func from(
+        settings: UnlockSettings,
+        client: HTTPClient = URLSessionHTTPClient()
+    ) -> UnlockChain {
+        var built: [any UnlockStrategy] = []
+        for entry in settings.entries where entry.enabled {
+            switch entry.id {
+            case "already-archived": built.append(AlreadyArchivedStrategy())
+            case "archive.is": built.append(ArchiveIsStrategy(client: client))
+            case "wayback": built.append(WaybackStrategy(client: client))
+            default: break
+            }
+        }
+        built.append(DirectStrategy())
+        return UnlockChain(strategies: built)
     }
 
     /// Streams progress updates. Stops on the first successful strategy.

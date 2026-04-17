@@ -6,10 +6,13 @@ paywalls te omzeilen en het artikel in reader-weergave aanbiedt.
 ## Status
 
 - **Phase 1**: projectstructuur, lokale `UnlockKit` SPM-package, main app met
-  uitleg-scherm, Share Extension die "Hallo vanuit PaywallReader" toont met de
-  gedeelde URL.
-- Phase 2: archive.is + Wayback strategieën (unlock chain).
-- Phase 3: SFSafariViewController reader + settings UI + error states.
+  uitleg-scherm, Share Extension die de gedeelde URL toont.
+- **Phase 2**: archive.is + Wayback strategieën met Cloudflare-detectie en
+  already-archived short-circuit.
+- **Phase 3**: SFSafariViewController reader (reader-mode aan), progress-
+  paneel met status per strategie, failure-paneel met "Open origineel"
+  fallback, settings-scherm met toggles + drag-to-reorder gedeeld via App
+  Group UserDefaults.
 
 ## Vereisten
 

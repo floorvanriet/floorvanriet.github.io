@@ -1,44 +1,63 @@
 import SwiftUI
+import UnlockKit
 
 struct ShareRootView: View {
     let url: URL?
     let onClose: () -> Void
 
+    @StateObject private var coordinator: ShareCoordinator
+    @State private var fallbackURL: URL?
+
+    init(url: URL?, onClose: @escaping () -> Void) {
+        self.url = url
+        self.onClose = onClose
+        let settings = UserDefaultsSettingsStore().load()
+        let chain = UnlockChain.from(settings: settings)
+        _coordinator = StateObject(wrappedValue: ShareCoordinator(chain: chain))
+    }
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Image(systemName: "newspaper")
-                    .font(.system(size: 42))
-                    .foregroundStyle(.tint)
-                Text("Hallo vanuit PaywallReader")
-                    .font(.headline)
-                if let url {
-                    Text(url.absoluteString)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                        .padding(.horizontal)
-                } else {
-                    Text("Geen URL ontvangen.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            content
+                .navigationTitle("PaywallReader")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Annuleer") {
+                            coordinator.cancel()
+                            onClose()
+                        }
+                    }
                 }
-                Spacer()
-            }
-            .padding(.top, 24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationTitle("PaywallReader")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Sluit", action: onClose)
-                }
+        }
+        .task {
+            guard let url else { return }
+            coordinator.start(url: url)
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let fallbackURL {
+            SafariView(url: fallbackURL, entersReaderIfAvailable: true)
+                .ignoresSafeArea()
+        } else {
+            switch coordinator.phase {
+            case .idle, .running:
+                ProgressPanel(log: coordinator.log, originalURL: url)
+            case .resolved(let result):
+                SafariView(url: result.resolvedURL, entersReaderIfAvailable: true)
+                    .ignoresSafeArea()
+            case .failed:
+                FailurePanel(
+                    originalURL: url,
+                    log: coordinator.log,
+                    onOpenOriginal: {
+                        if let url { fallbackURL = url }
+                    },
+                    onClose: onClose
+                )
             }
         }
     }
-}
-
-#Preview {
-    ShareRootView(url: URL(string: "https://www.nrc.nl/artikel"), onClose: {})
 }
