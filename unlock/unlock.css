@@ -8,6 +8,10 @@
   --border: #e2e2e0;
   --ok: #1f7a3a;
   --err: #a33;
+  --reader-bg: #fbfaf7;
+  --reader-fg: #1f1e1c;
+  --reader-muted: #736f67;
+  --reader-link: #3253a2;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,6 +24,10 @@
     --border: #2a2b2e;
     --ok: #4cc476;
     --err: #ff6868;
+    --reader-bg: #17181a;
+    --reader-fg: #ecece8;
+    --reader-muted: #9a9a95;
+    --reader-link: #7e9dff;
   }
 }
 
@@ -34,6 +42,8 @@ html, body {
   font-size: 17px;
   line-height: 1.5;
 }
+
+/* ---------- chooser ---------- */
 
 main {
   max-width: 640px;
@@ -113,7 +123,6 @@ button[type="submit"]:active { opacity: 0.8; }
   color: inherit;
 }
 
-a.result { cursor: pointer; }
 a.result:active { opacity: 0.7; }
 
 .result .icon {
@@ -124,15 +133,8 @@ a.result:active { opacity: 0.7; }
   place-items: center;
 }
 
-.result .body {
-  flex: 1;
-  min-width: 0;
-}
-
-.result .title {
-  font-weight: 600;
-}
-
+.result .body { flex: 1; min-width: 0; }
+.result .title { font-weight: 600; }
 .result .status {
   color: var(--muted);
   font-size: 14px;
@@ -141,9 +143,44 @@ a.result:active { opacity: 0.7; }
   white-space: nowrap;
 }
 
-.result.ok .icon { color: var(--ok); }
-.result.err .icon { color: var(--err); }
-.result.pending .icon { color: var(--muted); }
+.note {
+  padding: 12px 16px;
+  color: var(--muted);
+  font-size: 15px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+.note.error { color: var(--err); border-color: var(--err); }
+
+.help {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.help summary { cursor: pointer; padding: 8px 0; }
+.help code {
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+/* ---------- loading ---------- */
+
+#loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+
+#loading .loading-status {
+  color: var(--muted);
+  margin: 0;
+}
 
 .spinner {
   width: 16px;
@@ -154,23 +191,130 @@ a.result:active { opacity: 0.7; }
   animation: spin 0.8s linear infinite;
 }
 
+.spinner.big { width: 32px; height: 32px; border-width: 3px; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.help {
-  margin-top: 24px;
-  color: var(--muted);
+/* ---------- reader ---------- */
+
+#reader {
+  background: var(--reader-bg);
+  color: var(--reader-fg);
+  min-height: 100vh;
+}
+
+#reader {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: max(env(safe-area-inset-top), 32px) 20px calc(40px + env(safe-area-inset-bottom));
+  font-family: "Charter", "Iowan Old Style", "Palatino", Georgia, serif;
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.reader-header { margin-bottom: 28px; }
+
+#readerTitle {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.reader-meta {
+  color: var(--reader-muted);
+  margin: 0;
   font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Segoe UI, sans-serif;
 }
 
-.help summary {
-  cursor: pointer;
-  padding: 8px 0;
+.reader-content p {
+  margin: 0 0 1.1em;
 }
 
-.help code {
+.reader-content h1,
+.reader-content h2,
+.reader-content h3 {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Segoe UI, sans-serif;
+  line-height: 1.25;
+  margin: 1.6em 0 0.5em;
+}
+
+.reader-content h2 { font-size: 22px; }
+.reader-content h3 { font-size: 19px; }
+
+.reader-content a {
+  color: var(--reader-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.reader-content img,
+.reader-content figure img,
+.reader-content picture img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  display: block;
+  margin: 1.2em auto;
+}
+
+.reader-content figure {
+  margin: 1.4em 0;
+}
+
+.reader-content figcaption {
+  color: var(--reader-muted);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.reader-content blockquote {
+  border-left: 3px solid var(--reader-link);
+  margin: 1.4em 0;
+  padding-left: 16px;
+  color: var(--reader-muted);
+  font-style: italic;
+}
+
+.reader-content pre,
+.reader-content code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.reader-content pre {
   background: var(--surface);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
   border: 1px solid var(--border);
-  font-size: 13px;
 }
+
+.reader-content ul,
+.reader-content ol {
+  padding-left: 24px;
+}
+
+.reader-footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  color: var(--reader-muted);
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.reader-footer a {
+  color: var(--reader-link);
+  text-decoration: none;
+}
+.reader-footer a:hover { text-decoration: underline; }
