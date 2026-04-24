@@ -48,11 +48,12 @@
       <h2>Wat je krijgt</h2>
       <p>In Safari (of een andere app) kun je een artikel delen naar
       <strong>SuperReader</strong>. De Shortcut opent dan
-      <code>/unlock/?url=…&amp;auto=1</code> in Safari, wat:</p>
+      <code>/unlock/?url=…</code> in Safari, en de pagina:</p>
       <ol>
-        <li>de Wayback Machine-API controleert op een snapshot,</li>
-        <li>naar dat snapshot redirect als het bestaat,</li>
-        <li>anders doorgaat naar <code>archive.ph/newest/&lt;url&gt;</code>.</li>
+        <li>zoekt een Wayback-snapshot van het artikel,</li>
+        <li>haalt de HTML op en draait Mozilla Readability erover,</li>
+        <li>toont alleen titel, intro en platte tekst — zonder paywall-lagen,
+          ads of cookie-banners.</li>
       </ol>
 
       <h2>Stappen</h2>
@@ -81,7 +82,7 @@
       <h3>Actie 3 – Doel-URL samenstellen</h3>
       <ul>
         <li>Voeg <strong>Text</strong> toe met de waarde:<br>
-          <code>https://floorvanriet.github.io/unlock/?url=[Encoded Text]&amp;auto=1</code><br>
+          <code>https://floorvanriet.github.io/unlock/?url=[Encoded Text]</code><br>
           Vervang <em>[Encoded Text]</em> door de variabele uit stap 2.</li>
       </ul>
 
@@ -95,19 +96,14 @@
       <ol>
         <li>Open Safari, ga naar een artikel (bijv. een NRC- of FD-stuk).</li>
         <li>Tik <strong>Delen</strong> en kies <strong>SuperReader</strong>
-          (eventueel eerst via <em>Edit Actions</em> aanzetten).</li>
-        <li>Safari opent <code>/unlock/</code> en redirect naar de beste
-          beschikbare snapshot.</li>
+          (eventueel eerst via <em>Bewerk acties</em> aanzetten).</li>
+        <li>De reader-weergave van het artikel verschijnt in Safari.</li>
       </ol>
 
-      <h2>Zonder auto-redirect</h2>
-      <p>Laat <code>&amp;auto=1</code> weg in actie 3 als je liever een
-      kiezer ziet in plaats van een automatische redirect.</p>
-
-      <h2>Reader-mode</h2>
-      <p>Open in Safari de snapshot en tik links in de adresbalk op
-      <strong>AA → Toon reader</strong> voor een opgeschoonde weergave.
-      Lang indrukken om reader permanent aan te zetten voor die site.</p>
+      <h2>Als extractie niet lukt</h2>
+      <p>Geen Wayback-snapshot, of Readability vindt geen artikel? Dan toont
+      de pagina drie fallback-links: het snapshot, archive.is, en de
+      originele URL — op te openen in een nieuw tabblad.</p>
     </article>
   </main>
 </body>

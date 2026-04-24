@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="SuperReader">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>SuperReader – paywall unlock</title>
+  <title>SuperReader</title>
   <link rel="stylesheet" href="unlock.css">
 </head>
 <body>
-  <main>
+  <main id="chooser" hidden>
     <header>
       <h1>SuperReader</h1>
-      <p class="subtitle">Probeer een artikel-URL te openen via archief-diensten.</p>
+      <p class="subtitle">Open een artikel in plain-text reader via archief-diensten.</p>
     </header>
 
     <form id="urlform" autocomplete="off">
@@ -36,11 +36,32 @@
     <details class="help">
       <summary>Toevoegen aan iOS deelmenu</summary>
       <p>Bouw een Apple Shortcut die URLs ontvangt uit het deelmenu en
-      deze pagina opent met <code>?url=&lt;originele URL&gt;&amp;auto=1</code>.
-      Zie <a href="/shortcut.html">instructies</a> voor stap-voor-stap uitleg.</p>
+      deze pagina opent met <code>?url=&lt;originele URL&gt;</code>. Zie
+      <a href="/shortcut.html">instructies</a>.</p>
     </details>
   </main>
 
+  <section id="loading" hidden>
+    <div class="spinner big" aria-hidden="true"></div>
+    <p class="loading-status" id="loadingStatus">Bezig…</p>
+  </section>
+
+  <article id="reader" hidden>
+    <header class="reader-header">
+      <h1 id="readerTitle"></h1>
+      <p class="reader-meta" id="readerMeta"></p>
+    </header>
+    <div class="reader-content" id="readerContent"></div>
+    <footer class="reader-footer">
+      <a id="linkOriginal" target="_blank" rel="noopener">Origineel</a>
+      <span>·</span>
+      <a id="linkSnapshot" target="_blank" rel="noopener">Snapshot</a>
+      <span>·</span>
+      <a href="/unlock/">Nieuwe URL</a>
+    </footer>
+  </article>
+
+  <script src="vendor/Readability.js" defer></script>
   <script src="unlock.js" defer></script>
 </body>
 </html>
