@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3253a2">
+  <title>SuperReader – Shortcut instellen</title>
+  <link rel="stylesheet" href="/unlock/unlock.css">
+  <style>
+    article h2 { margin-top: 32px; font-size: 20px; }
+    article h3 { margin-top: 20px; font-size: 17px; }
+    article ol, article ul { padding-left: 22px; }
+    article li { margin-bottom: 8px; }
+    article code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    article pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+    .back {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="/unlock/">← Terug</a>
+    <article>
+      <header>
+        <h1>Shortcut instellen</h1>
+        <p class="subtitle">Een Apple Shortcut bouwen die URLs uit het
+        iOS-deelmenu doorstuurt naar SuperReader.</p>
+      </header>
+
+      <h2>Wat je krijgt</h2>
+      <p>In Safari (of een andere app) kun je een artikel delen naar
+      <strong>SuperReader</strong>. De Shortcut opent dan
+      <code>/unlock/?url=…&amp;auto=1</code> in Safari, wat:</p>
+      <ol>
+        <li>de Wayback Machine-API controleert op een snapshot,</li>
+        <li>naar dat snapshot redirect als het bestaat,</li>
+        <li>anders doorgaat naar <code>archive.ph/newest/&lt;url&gt;</code>.</li>
+      </ol>
+
+      <h2>Stappen</h2>
+      <ol>
+        <li>Open de <strong>Shortcuts</strong>-app op je iPhone.</li>
+        <li>Tik rechtsboven op <strong>+</strong> om een nieuwe shortcut te maken.</li>
+        <li>Tik op <strong>i</strong> onderaan en zet
+          <em>Show in Share Sheet</em> aan. Stel
+          <em>Share Sheet Types</em> in op <strong>URLs</strong>.</li>
+        <li>Hernoem de shortcut naar <strong>SuperReader</strong>.</li>
+        <li>Voeg deze acties toe in deze volgorde:</li>
+      </ol>
+
+      <h3>Actie 1 – URL uit share-invoer halen</h3>
+      <ul>
+        <li>Zoek de actie <strong>Get URLs from Input</strong> en voeg toe.</li>
+        <li>Stel <em>Input</em> in op <strong>Shortcut Input</strong>.</li>
+      </ul>
+
+      <h3>Actie 2 – URL-encoden</h3>
+      <ul>
+        <li>Voeg <strong>URL Encode</strong> toe.</li>
+        <li>Input: de output van stap 1 (<em>URLs</em>).</li>
+      </ul>
+
+      <h3>Actie 3 – Doel-URL samenstellen</h3>
+      <ul>
+        <li>Voeg <strong>Text</strong> toe met de waarde:<br>
+          <code>https://floorvanriet.github.io/unlock/?url=[Encoded Text]&amp;auto=1</code><br>
+          Vervang <em>[Encoded Text]</em> door de variabele uit stap 2.</li>
+      </ul>
+
+      <h3>Actie 4 – Openen in Safari</h3>
+      <ul>
+        <li>Voeg <strong>Open URLs</strong> toe.</li>
+        <li>Input: de <em>Text</em> uit stap 3.</li>
+      </ul>
+
+      <h2>Testen</h2>
+      <ol>
+        <li>Open Safari, ga naar een artikel (bijv. een NRC- of FD-stuk).</li>
+        <li>Tik <strong>Delen</strong> en kies <strong>SuperReader</strong>
+          (eventueel eerst via <em>Edit Actions</em> aanzetten).</li>
+        <li>Safari opent <code>/unlock/</code> en redirect naar de beste
+          beschikbare snapshot.</li>
+      </ol>
+
+      <h2>Zonder auto-redirect</h2>
+      <p>Laat <code>&amp;auto=1</code> weg in actie 3 als je liever een
+      kiezer ziet in plaats van een automatische redirect.</p>
+
+      <h2>Reader-mode</h2>
+      <p>Open in Safari de snapshot en tik links in de adresbalk op
+      <strong>AA → Toon reader</strong> voor een opgeschoonde weergave.
+      Lang indrukken om reader permanent aan te zetten voor die site.</p>
+    </article>
+  </main>
+</body>
+</html>
