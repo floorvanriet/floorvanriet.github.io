@@ -45,28 +45,32 @@
     showLoading("Zoeken in Wayback Machine…");
 
     let snapshot = null;
+    let lookupError = null;
     try {
       snapshot = await waybackLookup(url);
-    } catch (_) {
-      // Ignore — afgehandeld hieronder.
+    } catch (err) {
+      lookupError = err && err.message ? err.message : String(err);
     }
 
     if (!snapshot) {
       showChooser({
         originalURL: url,
-        note: "Geen Wayback-snapshot gevonden.",
+        note: lookupError
+          ? "Wayback-lookup faalde: " + lookupError
+          : "Geen Wayback-snapshot gevonden.",
         links: chooserLinks(url, null)
       });
       return;
     }
 
-    showLoading("Artikel uitpakken…");
+    showLoading("Snapshot downloaden…");
 
     let article = null;
+    let extractError = null;
     try {
       article = await extractArticle(snapshot, url);
-    } catch (_) {
-      article = null;
+    } catch (err) {
+      extractError = err && err.message ? err.message : String(err);
     }
 
     if (article && article.content && article.textContent && article.textContent.length > 200) {
@@ -76,16 +80,16 @@
 
     showChooser({
       originalURL: url,
-      note: "Reader-extractie mislukt, open het snapshot direct.",
+      note: extractError
+        ? "Reader-extractie mislukt: " + extractError
+        : "Reader-extractie leverde geen tekst op. Open het snapshot zelf.",
       links: chooserLinks(url, snapshot)
     });
   }
 
   async function waybackLookup(url) {
-    const response = await fetch(WAYBACK_API + encodeURIComponent(url), {
-      headers: { Accept: "application/json" }
-    });
-    if (!response.ok) return null;
+    const response = await fetchWithTimeout(WAYBACK_API + encodeURIComponent(url), 10000);
+    if (!response.ok) throw new Error("availability HTTP " + response.status);
     const data = await response.json();
     const closest = data && data.archived_snapshots && data.archived_snapshots.closest;
     if (closest && closest.available && closest.status === "200" && closest.url) {
@@ -96,11 +100,14 @@
 
   async function extractArticle(snapshotURL, originalURL) {
     const rawURL = snapshotURL.replace(/\/web\/(\d+)\//, "/web/$1id_/");
-    const response = await fetch(rawURL);
-    if (!response.ok) throw new Error("snapshot http " + response.status);
+    const response = await fetchWithTimeout(rawURL, 15000);
+    if (!response.ok) throw new Error("snapshot HTTP " + response.status);
+
+    showLoading("Artikel parsen…");
     const html = await response.text();
 
     const doc = new DOMParser().parseFromString(html, "text/html");
+    if (!doc || !doc.body) throw new Error("geen geldige HTML in snapshot");
 
     // Forceer base-href zodat Readability absolute URLs genereert voor
     // afbeeldingen en links.
@@ -111,7 +118,38 @@
     // Strip Wayback-wrapper elementen die soms in id_-responses blijven hangen.
     doc.querySelectorAll("#wm-ipp, #wm-ipp-base, #donato, [id^='wm-']").forEach((n) => n.remove());
 
+    showLoading("Reader extraheren…");
+    // Geef Safari een beurt om de loading-status te renderen voordat we een
+    // CPU-intensieve Readability-pass doen.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     return new Readability(doc).parse();
+  }
+
+  async function fetchWithTimeout(url, ms) {
+    const signal = createTimeoutSignal(ms);
+    try {
+      return await fetch(url, {
+        signal,
+        credentials: "omit",
+        redirect: "follow",
+        cache: "no-store"
+      });
+    } catch (err) {
+      if (err && (err.name === "AbortError" || err.name === "TimeoutError")) {
+        throw new Error("timeout na " + (ms / 1000) + "s");
+      }
+      throw err;
+    }
+  }
+
+  function createTimeoutSignal(ms) {
+    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+      return AbortSignal.timeout(ms);
+    }
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
   }
 
   function renderReader(article, originalURL, snapshotURL) {
