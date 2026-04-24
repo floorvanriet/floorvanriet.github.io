@@ -1,0 +1,23 @@
+# Xcode / Swift
+build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# SwiftPM
+.build/
+Packages/*/.build/
+Packages/*/.swiftpm/
+.swiftpm/
+Package.resolved
+
+# XcodeGen-generated project — regenerate locally with `xcodegen generate`.
+SuperReader.xcodeproj/

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3253a2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SuperReader">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SuperReader – paywall unlock</title>
+  <link rel="stylesheet" href="unlock.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>SuperReader</h1>
+      <p class="subtitle">Probeer een artikel-URL te openen via archief-diensten.</p>
+    </header>
+
+    <form id="urlform" autocomplete="off">
+      <input
+        type="url"
+        id="urlinput"
+        name="url"
+        placeholder="https://…"
+        inputmode="url"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        required>
+      <button type="submit">Ontgrendel</button>
+    </form>
+
+    <ol id="results" aria-live="polite"></ol>
+
+    <details class="help">
+      <summary>Toevoegen aan iOS deelmenu</summary>
+      <p>Bouw een Apple Shortcut die URLs ontvangt uit het deelmenu en
+      deze pagina opent met <code>?url=&lt;originele URL&gt;&amp;auto=1</code>.
+      Zie <a href="/shortcut.html">instructies</a> voor stap-voor-stap uitleg.</p>
+    </details>
+  </main>
+
+  <script src="unlock.js" defer></script>
+</body>
+</html>
