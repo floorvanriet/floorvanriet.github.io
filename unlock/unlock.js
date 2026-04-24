@@ -3,6 +3,7 @@
 
   const WAYBACK_API = "https://archive.org/wayback/available?url=";
   const ARCHIVE_IS_NEWEST = "https://archive.ph/newest/";
+  const PROXY_RAW = "https://api.allorigins.win/raw?url=";
 
   const chooser = document.getElementById("chooser");
   const loading = document.getElementById("loading");
@@ -36,55 +37,66 @@
     }
 
     if (isArchiveHost(url)) {
-      // De gedeelde URL is al een archief-link. Niets te ontgrendelen, stuur
-      // rechtstreeks door.
       window.location.replace(url);
       return;
     }
 
-    showLoading("Zoeken in Wayback Machine…");
+    const failures = [];
 
+    // Strategy 1: Wayback snapshot via id_-endpoint
+    showLoading("Zoeken in Wayback Machine…");
     let snapshot = null;
-    let lookupError = null;
     try {
       snapshot = await waybackLookup(url);
     } catch (err) {
-      lookupError = err && err.message ? err.message : String(err);
+      failures.push("Wayback lookup: " + errorMessage(err));
     }
 
-    if (!snapshot) {
-      showChooser({
-        originalURL: url,
-        note: lookupError
-          ? "Wayback-lookup faalde: " + lookupError
-          : "Geen Wayback-snapshot gevonden.",
-        links: chooserLinks(url, null)
-      });
-      return;
+    if (snapshot) {
+      try {
+        showLoading("Wayback snapshot downloaden…");
+        const rawURL2 = snapshot.replace(/\/web\/(\d+)\//, "/web/$1id_/");
+        const article = await extractFromURL(rawURL2, url, 15000);
+        if (articleIsValid(article)) {
+          renderReader(article, url, snapshot);
+          return;
+        }
+        failures.push("Wayback: Readability vond geen artikel");
+      } catch (err) {
+        failures.push("Wayback snapshot: " + errorMessage(err));
+      }
+    } else if (!failures.length) {
+      failures.push("Wayback: geen snapshot");
     }
 
-    showLoading("Snapshot downloaden…");
-
-    let article = null;
-    let extractError = null;
+    // Strategy 2: Fetch het origineel via een CORS-proxy
+    showLoading("Origineel ophalen via proxy…");
     try {
-      article = await extractArticle(snapshot, url);
+      const proxyURL = PROXY_RAW + encodeURIComponent(url);
+      const article = await extractFromURL(proxyURL, url, 20000);
+      if (articleIsValid(article)) {
+        renderReader(article, url, url);
+        return;
+      }
+      failures.push("Proxy: Readability vond geen artikel");
     } catch (err) {
-      extractError = err && err.message ? err.message : String(err);
-    }
-
-    if (article && article.content && article.textContent && article.textContent.length > 200) {
-      renderReader(article, url, snapshot);
-      return;
+      failures.push("Proxy: " + errorMessage(err));
     }
 
     showChooser({
       originalURL: url,
-      note: extractError
-        ? "Reader-extractie mislukt: " + extractError
-        : "Reader-extractie leverde geen tekst op. Open het snapshot zelf.",
+      note: "Kon geen reader-weergave maken.\n" + failures.join("\n"),
       links: chooserLinks(url, snapshot)
     });
+  }
+
+  function articleIsValid(article) {
+    return (
+      article &&
+      article.content &&
+      article.textContent &&
+      article.textContent.length > 200
+    );
   }
 
   async function waybackLookup(url) {
@@ -98,58 +110,27 @@
     return null;
   }
 
-  async function extractArticle(snapshotURL, originalURL) {
-    const rawURL = snapshotURL.replace(/\/web\/(\d+)\//, "/web/$1id_/");
-    const response = await fetchWithTimeout(rawURL, 15000);
-    if (!response.ok) throw new Error("snapshot HTTP " + response.status);
+  async function extractFromURL(fetchURL, originalURL, timeoutMs) {
+    const response = await fetchWithTimeout(fetchURL, timeoutMs);
+    if (!response.ok) throw new Error("HTTP " + response.status);
 
-    showLoading("Artikel parsen…");
+    showLoading("HTML parsen…");
     const html = await response.text();
+    if (!html || html.length < 200) throw new Error("lege respons");
 
     const doc = new DOMParser().parseFromString(html, "text/html");
-    if (!doc || !doc.body) throw new Error("geen geldige HTML in snapshot");
+    if (!doc || !doc.body) throw new Error("geen geldige HTML");
 
-    // Forceer base-href zodat Readability absolute URLs genereert voor
-    // afbeeldingen en links.
     const base = doc.createElement("base");
     base.href = originalURL;
     if (doc.head) doc.head.prepend(base);
 
-    // Strip Wayback-wrapper elementen die soms in id_-responses blijven hangen.
     doc.querySelectorAll("#wm-ipp, #wm-ipp-base, #donato, [id^='wm-']").forEach((n) => n.remove());
 
     showLoading("Reader extraheren…");
-    // Geef Safari een beurt om de loading-status te renderen voordat we een
-    // CPU-intensieve Readability-pass doen.
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     return new Readability(doc).parse();
-  }
-
-  async function fetchWithTimeout(url, ms) {
-    const signal = createTimeoutSignal(ms);
-    try {
-      return await fetch(url, {
-        signal,
-        credentials: "omit",
-        redirect: "follow",
-        cache: "no-store"
-      });
-    } catch (err) {
-      if (err && (err.name === "AbortError" || err.name === "TimeoutError")) {
-        throw new Error("timeout na " + (ms / 1000) + "s");
-      }
-      throw err;
-    }
-  }
-
-  function createTimeoutSignal(ms) {
-    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
-      return AbortSignal.timeout(ms);
-    }
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), ms);
-    return ctrl.signal;
   }
 
   function renderReader(article, originalURL, snapshotURL) {
@@ -169,8 +150,6 @@
     const content = document.getElementById("readerContent");
     content.innerHTML = article.content || "";
 
-    // Absolutiseer relatieve afbeeldingen (zou door base-href gedekt moeten
-    // zijn maar sommige srcset-vormen ontsnappen).
     content.querySelectorAll("img").forEach((img) => {
       if (img.getAttribute("src") && img.src.startsWith(location.origin)) {
         try {
@@ -270,5 +249,37 @@
     } catch (_) {
       return false;
     }
+  }
+
+  function errorMessage(err) {
+    if (!err) return "onbekend";
+    if (err.message) return err.message;
+    return String(err);
+  }
+
+  async function fetchWithTimeout(url, ms) {
+    const signal = createTimeoutSignal(ms);
+    try {
+      return await fetch(url, {
+        signal,
+        credentials: "omit",
+        redirect: "follow",
+        cache: "no-store"
+      });
+    } catch (err) {
+      if (err && (err.name === "AbortError" || err.name === "TimeoutError")) {
+        throw new Error("timeout na " + (ms / 1000) + "s");
+      }
+      throw err;
+    }
+  }
+
+  function createTimeoutSignal(ms) {
+    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+      return AbortSignal.timeout(ms);
+    }
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
   }
 })();
